@@ -6,7 +6,7 @@
 The vearch-helm project helps deploy a vearch cluster orchestrated by Kubernetes.
 
 ### Prerequisite 
-Kubernetes 1.16+
+Kubernetes 1.19+
 Helm 2 
  
 ### Init Helm
