@@ -3,8 +3,8 @@ name: vearch
 description: A Helm chart for vearch
 home: https://vearch.github.io
 kubeVersion: ">=1.14.6-23.3d03dd1"
-version: 0.5.1
-appVersion: 0.5.1
+version: 0.5.2
+appVersion: 0.5.2
 keywords:
   - vearch
   - vearch-helm
