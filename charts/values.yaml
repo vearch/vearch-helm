@@ -24,7 +24,7 @@ global:
   signkey: secret
   skip_auth: true
   monitor: /export/vearch/prometheus
-  base_domain: .dev51.cvessel.jdcloud.com
+  base_domain: .vearch.com
 
 master:
   replicas: 3
@@ -118,9 +118,3 @@ prometheus:
     limits:
       memory: "1024Mi"
       cpu: "1000m"
-
-etcd:
-  address: tpaas-etcd-client.tpaas-etcd
-  port: 2379
-  user: root
-  pwd: ""
