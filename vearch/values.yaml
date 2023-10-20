@@ -48,7 +48,7 @@ master:
       cpu: "1000m"
 
 router:
-  replicas: 2
+  replicas: 1
   labels:
     node_selector_key: vearch-router
     node_selector_value: enabled
