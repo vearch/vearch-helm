@@ -118,3 +118,9 @@ prometheus:
     limits:
       memory: "1024Mi"
       cpu: "1000m"
+
+etcd:
+  address: tpaas-etcd-client.tpaas-etcd
+  port: 2379
+  user: root
+  pwd: ""
