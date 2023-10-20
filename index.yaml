@@ -1,0 +1,25 @@
+apiVersion: v1
+entries:
+  vearch:
+  - apiVersion: v1
+    appVersion: 0.5.3
+    created: "2023-10-20T06:31:22.547838105Z"
+    description: A Helm chart for vearch
+    digest: 83936a4ec0598a5d839bc317f28558569e96178015129adb63dca4c4b2cb1555
+    home: https://vearch.github.io
+    icon: https://raw.githubusercontent.com/vearch/vearch/master/docs/img/vearch_logo.png
+    keywords:
+    - vearch
+    - vearch-helm
+    - vearch-csi
+    kubeVersion: '>=1.14.6-23.3d03dd1'
+    maintainers:
+    - email: vearch-maintainers@groups.io
+      name: vearch
+    name: vearch
+    sources:
+    - https://github.com/vearch/vearch-helm
+    urls:
+    - https://github.com/vearch/vearch-helm/releases/download/vearch-0.5.4/vearch-0.5.4.tgz
+    version: 0.5.4
+generated: "2023-10-20T06:31:22.547845005Z"
