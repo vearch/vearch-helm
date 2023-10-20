@@ -3,9 +3,9 @@
 all: build
 
 lint:
-	helm lint ./vearch
+	helm lint ./charts
 
 build: lint
-	helm package ./vearch
+	helm package ./charts
 
 .PHONY: all lint build
