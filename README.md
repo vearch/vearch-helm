@@ -19,7 +19,7 @@ $ helm init
 
 ```
 $ helm serve &
-$ helm repo add local http://localhost:8879/charts
+$ helm repo add vearch https://vearch.github.io/vearch-helm
 ```
 
 ### Add vearch-helm to the local repository
@@ -127,4 +127,3 @@ Add a local DNS in `/etc/hosts` in order for a request to find the ingress contr
 ```
 172.17.0.5 monitor.vearch.com
 ```
-
