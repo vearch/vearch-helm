@@ -1,0 +1,27 @@
+{{- if .Values.component.master }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vearch-bin-{{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+data:
+{{- if .Values.component.master }}
+  config-master.sh: |+
+{{ tuple "bin/_config_master.sh.tpl" . | include "helm-toolkit.utils.template" | indent 4 }}
+  start-master.sh: |+
+{{ tuple "bin/_start_master.sh.tpl" . | include "helm-toolkit.utils.template" | indent 4 }}
+{{- end }}
+
+{{- if .Values.component.router }}
+  start-router.sh: |+
+{{ tuple "bin/_start_router.sh.tpl" . | include "helm-toolkit.utils.template" | indent 4 }}
+{{- end }}
+
+{{- if .Values.component.ps }}
+  start-ps.sh: |+
+{{ tuple "bin/_start_ps.sh.tpl" . | include "helm-toolkit.utils.template" | indent 4 }}
+{{- end }}
+
+
+{{- end }}

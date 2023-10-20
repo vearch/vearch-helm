@@ -1,0 +1,25 @@
+{{- if .Values.component.monitor }}
+{{- $envAll := . }}
+{{- $namespace := .Values.namespace }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus-{{ .Release.Name }}
+  namespace: {{ $namespace }}
+  # annotations:
+  #   nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+   - host: {{ .Release.Name }}.{{ .Values.namespace }}.prometheus{{ .Values.global.base_domain }}
+     http:
+       paths:
+       - path: /
+         pathType: Prefix
+         backend:
+           service:
+            name: prometheus-service-{{ .Release.Name }}
+            port: 
+              number: {{ .Values.prometheus.port }}
+{{ end }}

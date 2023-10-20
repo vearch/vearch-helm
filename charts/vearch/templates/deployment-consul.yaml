@@ -1,0 +1,42 @@
+{{- if .Values.component.monitor }}
+{{- $envAll := . }}
+{{- $namespace := .Values.namespace }}
+{{- $consul := printf "consul-%s" .Release.Name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consul-{{ .Release.Name }}
+  labels:
+{{ tuple $envAll $namespace $consul | include "helm-toolkit.metadata_labels" | indent 4 }}
+  namespace: {{ $namespace }}
+spec:
+  replicas: {{ .Values.consul.replicas }}
+  selector:
+    matchLabels:
+{{ tuple $envAll $namespace $consul | include "helm-toolkit.metadata_labels" | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{ tuple $envAll $namespace $consul | include "helm-toolkit.metadata_labels" | indent 8 }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.image.pull_secret }}
+      containers:
+        - name: consul-pod
+          image: {{ .Values.image.consul }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            privileged: true
+          ports:
+{{ tuple $envAll "port" .Values.consul.port | include "helm-toolkit.utils.container_port" | indent 12 }}
+{{ tuple $envAll $envAll.Values.consul.resources | include "helm-toolkit.snippets.kubernetes_resources" | indent 10 }}
+          volumeMounts:
+            - name: date-config
+              mountPath: /etc/localtime
+              readOnly: true
+      volumes:
+        - name: date-config
+          hostPath:
+            path: /etc/localtime
+{{ end }}

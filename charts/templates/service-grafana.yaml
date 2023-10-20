@@ -1,0 +1,19 @@
+{{- if .Values.component.monitor }}
+{{- $envAll := . }}
+{{- $namespace := .Values.namespace }}
+{{- $grafana := printf "grafana-%s" .Release.Name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-service-{{ .Release.Name }}
+  namespace: {{ $namespace }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.grafana.port }}
+      protocol: TCP
+      targetPort: {{ .Values.grafana.port }}
+  selector:
+{{ tuple $envAll $namespace $grafana | include "helm-toolkit.metadata_labels" | indent 4 }}
+{{ end }}

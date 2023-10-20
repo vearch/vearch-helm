@@ -1,0 +1,19 @@
+{{- if .Values.component.master }}
+{{- $envAll := . }}
+{{- $namespace := .Values.namespace }}
+{{- $master := printf "master-%s" .Release.Name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: master-service-{{ .Release.Name }}
+  namespace: {{ $namespace }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.master.api_port }}
+      protocol: TCP
+      targetPort: {{ .Values.master.api_port }}
+  selector:
+{{ tuple $envAll $namespace $master | include "helm-toolkit.metadata_labels" | indent 4 }}
+{{ end }}

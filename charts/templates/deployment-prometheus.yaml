@@ -1,0 +1,51 @@
+{{- if .Values.component.monitor }}
+{{- $envAll := . }}
+{{- $namespace := .Values.namespace }}
+{{- $prometheus := printf "prometheus-%s" .Release.Name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-{{ .Release.Name }}
+  labels:
+{{ tuple $envAll $namespace $prometheus | include "helm-toolkit.metadata_labels" | indent 4 }}
+  namespace: {{ $namespace }}
+spec:
+  replicas: {{ .Values.prometheus.replicas }}
+  selector:
+    matchLabels:
+{{ tuple $envAll $namespace $prometheus | include "helm-toolkit.metadata_labels" | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{ tuple $envAll $namespace $prometheus | include "helm-toolkit.metadata_labels" | indent 8 }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.image.pull_secret }}
+      containers:
+        - name: prometheus-pod
+          image: {{ .Values.image.prometheus }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+{{ tuple $envAll "port" .Values.prometheus.port | include "helm-toolkit.utils.container_port" | indent 12 }}
+          volumeMounts:
+            - name: monitor-config-{{ .Release.Name }}
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+            - name: prometheus-data
+              mountPath: /prometheus-data
+            - name: date-config
+              mountPath: /etc/localtime
+              readOnly: true
+{{ tuple $envAll $envAll.Values.prometheus.resources | include "helm-toolkit.snippets.kubernetes_resources" | indent 10 }}
+      volumes:
+        - name: monitor-config-{{ .Release.Name }}
+          configMap:
+            name: monitor-config-{{ .Release.Name }}
+            defaultMode: 0555
+        - name: prometheus-data
+          emptyDir: {}
+        - name: date-config
+          hostPath:
+            path: /etc/localtime
+{{ end }}

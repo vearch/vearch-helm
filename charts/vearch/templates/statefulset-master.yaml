@@ -1,0 +1,82 @@
+{{- if .Values.component.master }}
+{{- $envAll := . }}
+{{- $namespace := .Values.namespace }}
+{{- $master := printf "master-%s" .Release.Name }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: master-{{ .Release.Name }}
+  labels:
+{{ tuple $envAll $namespace $master | include "helm-toolkit.metadata_labels" | indent 4 }}
+  namespace: {{ $namespace }}
+spec:
+  replicas: {{ .Values.master.replicas }}
+  serviceName: master-service-{{ .Release.Name }}
+  selector:
+    matchLabels:
+{{ tuple $envAll $namespace $master | include "helm-toolkit.metadata_labels" | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{ tuple $envAll $namespace $master | include "helm-toolkit.metadata_labels" | indent 8 }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.image.pull_secret }}
+      {{- if .Values.component.monitor }}
+      initContainers:
+        - name: init-consul
+          image: {{ .Values.image.server }}
+          imagePullPolicy: {{ .Values.image.pull_policy }}
+          command: [ "/bin/sh", "-c", "yum install -y bind-utils; until nslookup consul-service-{{ .Release.Name }}; do echo waiting for consul; sleep 2; done;"]
+      {{- end }}
+      containers:
+        - name: master-pod
+          image: {{ .Values.image.server }}
+          imagePullPolicy: {{ .Values.image.pull_policy }}
+          command: [ "/bin/sh", "-c", "curl -X PUT -d \"{\\\"ID\\\": \\\"master-$PODIP\\\", \\\"Name\\\": \\\"master-$PODIP\\\", \\\"Address\\\": \\\"$PODIP\\\", \\\"Port\\\": 8818}\" consul-service-{{ .Release.Name }}:8500/v1/agent/service/register;sh /vearch/script/start-master.sh;" ]
+          securityContext:
+            privileged: true
+          ports:
+{{ tuple $envAll "api-port" .Values.master.api_port | include "helm-toolkit.utils.container_port" | indent 12 }}
+{{ tuple $envAll "etcd-port" .Values.master.etcd_port | include "helm-toolkit.utils.container_port" | indent 12 }}
+{{ tuple $envAll "peer-port" .Values.master.etcd_peer_port | include "helm-toolkit.utils.container_port" | indent 12 }}
+{{ tuple $envAll "client-port" .Values.master.etcd_client_port | include "helm-toolkit.utils.container_port" | indent 12 }}
+{{ tuple $envAll "pprof-port" .Values.master.pprof_port | include "helm-toolkit.utils.container_port" | indent 12 }}
+{{ tuple $envAll "mport" .Values.master.monitor_port | include "helm-toolkit.utils.container_port" | indent 12 }}
+{{ tuple $envAll | include "helm-toolkit.utils.env" | indent 10 }}
+          volumeMounts:
+            - name: vearch-bin-{{ .Release.Name }}
+              mountPath: /vearch/script
+              readOnly: true
+            {{- if .Values.global.log }}
+            - name: pod-log-path
+              mountPath: {{ .Values.global.log }}
+              readOnly: false
+            {{- end }}
+            {{- if .Values.global.data }}
+            - name: pod-data-path
+              mountPath: {{ .Values.global.data }}
+              readOnly: false
+            {{- end }}
+            - name: date-config
+              mountPath: /etc/localtime
+              readOnly: true
+{{ tuple $envAll $envAll.Values.master.resources | include "helm-toolkit.snippets.kubernetes_resources" | indent 10 }}
+      volumes:
+        - name: vearch-bin-{{ .Release.Name }}
+          configMap:
+            name: vearch-bin-{{ .Release.Name }}
+            defaultMode: 0555
+        {{- if .Values.global.log }}
+        - name: pod-log-path
+          emptyDir: {}
+        {{- end }}
+        {{- if .Values.global.data }}
+        - name: pod-data-path
+          emptyDir: {}
+        {{- end }}
+        - name: date-config
+          hostPath:
+            path: /etc/localtime
+{{ end }}
